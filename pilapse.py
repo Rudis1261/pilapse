@@ -31,61 +31,77 @@ GPIO.output(SHUTTER, GPIO.LOW)
 # The function responsible to initiate the focus
 def focus():
     global FOCUS
-    GPIO.output(FOCUS, GPIO.HIGH)
+    print "Focussing Camera"
+    GPIO.output(FOCUS, GPIO.HIGH)    
     return True
   
 # This function is used to de-focus the camera
 def blur():
     global FOCUS
+    print "De-Focussing Camera"
     GPIO.output(FOCUS, GPIO.LOW)
     return True
   
 # We also need to be able to trigger the shutter as needed  
 def shutter(seconds_as_float=0.5):
     global SHUTTER
+    print "Triggering the shutter of the Camera"
     GPIO.output(SHUTTER, GPIO.HIGH)
-    time.sleep(seconds_as_float)
+    print "Holding trigger for " + str(seconds_as_float) + " seconds"
+    time.sleep(float(seconds_as_float))
     GPIO.output(SHUTTER, GPIO.LOW)
+    return True
+
+# To take the photo we need to do some things
+def take_photo(focus_time=3, shutter_time=0.5):
+    focus()
+    time.sleep(float(focus_time))
+    shutter(shutter_time)
+    blur()
     return True
 
 
 # Start the SimpleHTTPServer up and look for actions, otherwise server the remote page
 class CustomHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
-        PARSE = parse_qsl(urlparse(self.path)[4])
+        dir(self)
+        GET = parse_qsl(urlparse(self.path)[4])
         if self.path.find("?") > 0:
             self.send_response(200)
             self.send_header('Content-type','text/html')
             self.end_headers()
-            for (command, value) in PARSE:                
-                exec "%s = %s" % (command, value)
-                
-            print ""
-            print ""
-            print action
-            print seconds
             
-            '''# Is a command provided?
-            if action == 'action':
+            # Loop through the GET variables and create a set of variables
+            for item in GET:                
+                exec "%s = '%s'" % item
+            
+            # Check if at least an action is provided
+            if 'action' in locals():
                 
-                # Is the action 
-                if value == 'focus':
+                # Is a command provided?
+                if action == 'focus':
                     focus()
                     time.sleep(3)
                     blur()
+                 
+                # The take_photo action was provided   
+                if action == 'take_photo':
+                    shutter_speed = 0.5
+                    focus_time = 3
                     
-                if value == 'capture':
-                    focus()
-                    time.sleep(3)
-                    shutter()
-                    blur()
-                
+                    # Check if the additional info has been provided
+                    if 'tv' in locals():
+                        shutter_speed = tv
+                    
+                    if 'ft' in locals():
+                        focus_time = ft
+                    
+                    # Taken the actual photo    
+                    take_photo(focus_time, shutter_speed)
             
-            # Not, sure give a 0 response
+            # Not action provided, give an error
             else:
-                self.wfile.write('0') 
-            return
-            '''
+                self.wfile.write('ERROR: No action provided') 
         
         # Otherwise render the page as per normal
         else:
