@@ -13,8 +13,8 @@ PORT = 80
 IP = ''
 
 # Which pin is which?
-FOCUS = 18
-SHUTTER = 23
+FOCUS = 18 #Green, pin 7 right
+SHUTTER = 23 #Purple, pin 6 right
 
 # Set the GPIO mode appropiately
 GPIO.setmode(GPIO.BCM)
@@ -80,9 +80,14 @@ class CustomHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 
                 # Is a command provided?
                 if action == 'focus':
+                    focus_time = 3
+                    if 'ft' in locals():
+                        focus_time = ft
+                        
                     focus()
-                    time.sleep(3)
+                    time.sleep(float(focus_time))
                     blur()
+                    self.wfile.write('Focus completed')
                  
                 # The take_photo action was provided   
                 if action == 'take_photo':
@@ -98,6 +103,8 @@ class CustomHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     
                     # Taken the actual photo    
                     take_photo(focus_time, shutter_speed)
+                    self.wfile.write('Photo taken')
+                    
             
             # Not action provided, give an error
             else:

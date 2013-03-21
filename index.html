@@ -5,13 +5,30 @@
         <title>Pi Lapse</title>
         <!-- Bootstrap -->
         <link href="assets/css/bootstrap.css" rel="stylesheet" media="screen">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     
     <body>
         <!-- Main Container, to center the remote -->
-        <div align="center">
+        <div align="center" class="span4">
             <h1>Pi Lapse</h1>
-            <button class="btn btn-large">Hello</button>
+            <form class="form form-horizontal">
+                <div class="control-group">
+                    <label class="control-label">Shutter Speed</label>
+                    <div class="controls">
+                        <input type="text" class="input input-small" value="0.5" id="tv">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Time to focus</label>
+                    <div class="controls">
+                        <input type="text" class="input input-small" value="3" id="ft">
+                    </div>
+                </div>  
+                <button class="btn btn-large action btn-block" data="take_photo">Take Test Photo</button>
+                <br />
+                <button class="btn btn-large action btn-block" data="focus">Test Focus</button>
+            </form>
     
         </div><!-- </main div> -->
         
